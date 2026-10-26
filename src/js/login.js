@@ -7,7 +7,7 @@
  * incorrect password (401) and a server connectivity problem.
  */
 
-import {API_URL, put} from "./api/api";
+import {API_URL, get, put} from "./api/api";
 import str2B64 from "./utils/utf8";
 
 /**
@@ -38,4 +38,18 @@ function login(e) {
     put(`${API_URL}auth`,'',{password:password},successCallback,errorCallback)
 }
 
-document.getElementById('loginForm').addEventListener('submit', login);
+// Opening the login page ends any earlier admin session (its cookie lasts
+// 24 h), so Configuration always asks for the password.  A login submitted
+// before that has finished waits for it.
+let ready = false;
+const setReady = () => { ready = true; };
+get(`${API_URL}logout`, '', setReady, setReady);
+setTimeout(setReady, 3000);
+
+function loginWhenReady(e) {
+    e.preventDefault();
+    if (ready) login(e);
+    else setTimeout(() => loginWhenReady(e), 200);
+}
+
+document.getElementById('loginForm').addEventListener('submit', loginWhenReady);
