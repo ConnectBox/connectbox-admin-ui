@@ -35,6 +35,14 @@ To customize this admin frontend, you can, according to your needs:
   - `index.js` load computed styles from scss
   - `admin.js` and `login.js` are entry points compiled to bundle for login and admin pages
 
+Login behaviour: Configuration always asks for the password (the admin page opens only when
+reached from another /admin page), opening the login page ends any earlier session, leaving the
+admin page logs out (sendBeacon to `/admin/api/logout`) and Reload/Back/Forward go to the login
+page, Exit goes to the main ConnectBox screen, and the page sends a keepalive once a minute while
+it is open (connectbox-manage ends a session after 5 minutes without a request). The login page
+does not show the default password. connectbox-pi applies the same changes to the release
+bundles with `patch_admin_login.py`; keep the two in step.
+
 Do not forget to recompile it with `yarn build` and to deploy (see next section)
 
 ## Deploy [Danger]
