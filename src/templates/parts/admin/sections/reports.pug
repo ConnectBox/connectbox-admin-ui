@@ -16,4 +16,12 @@ block content
     include ../reports/top10
     include ../reports/stats
     include ../reports/download
+    //- Delete Stats (moved here from System, 2026-10-29): same row as the
+    //- System scripts; js/admin/scripts.js wires #deleteweblog-button.
+    div.mt-3
+        include  ../../../icons/settings
+        | Delete Stats
+        .float-end
+            button.bg-transparent.border-0.text-primary.p-0#deleteweblog-button
+                include  ../../../icons/play
 

@@ -21,3 +21,14 @@ block content
         include ../forms/server_siteadmin_email
     .regular
         include ../forms/server_siteadmin_phone
+    //- Sync To Cloud Server (moved here from Web Server, 2026-10-29): shown
+    //- only when the box has a Box ID and a Cloud Server URL is saved.
+    #cloudsyncregion.hidden
+        include ../forms/sync
+    //- Content package items (moved here from Web Server, 2026-10-29): shown
+    //- under the same rule as Sync: a Box ID and a saved Cloud Server URL
+    //- (js/admin/cloudpackage.js).  Neither region is .isAdvanced, so the
+    //- advanced-options button does not reveal them.
+    #cloudpackageregion.hidden
+        include ../forms/openwell_download
+        include ../forms/openwell_refresh

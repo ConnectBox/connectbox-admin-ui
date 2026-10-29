@@ -19,6 +19,7 @@
 import {API_URL, del, get, post, put} from "../api/api";
 import openSnackBar from "../components/snackbar";
 import openPopup from "../components/popup";
+import {noteSavedCloudValue} from "./cloudpackage";
 import {successMessage, successMessages} from "../messages/messages";
 import {
     alphaSortWithKey, appendItemsToList, appendOptionsToSelect, validateLMSEmail,
@@ -170,6 +171,26 @@ function attachUpdateCallbackToSwitch(name, id, token, callback = null) {
  * @param id the id of the form
  * @param token the token to authenticate the request
  */
+/**
+ * Like attachUpdateBrandCallbackToTextField, for the Cloud Server URL: once
+ * saved, it decides (with the Box ID) whether the cloud items - Sync To Cloud
+ * Server, Subscribe to Content Package, Download Missing Content Files - are shown.
+ * @param id the brand field and form id ('server_url')
+ * @param token the token to authenticate the request
+ */
+function attachUpdateCloudValue(id, token) {
+    attachUpdate(id, (e) => {
+        e.preventDefault();
+        showLoader(id);
+        const input = document.getElementById(`${id}-input`);
+        const value = input.value;
+        setProperty("brand", {value: `${id}=${value}`}, token, (name) => {
+            successCallback(name);
+            noteSavedCloudValue(input, value);
+        }, id);
+    })
+}
+
 function attachUpdateBrandCallbackToTextField(name, id, token) {
     attachUpdate(id, (e) => {
         e.preventDefault();
@@ -827,7 +848,7 @@ export default function attachUpdateCallbacks(token) {
 
     // Brand text inputs
 	attachUpdateBrandCallbackToTextField('otg_enable','otg_enable', token); // otg_enable is actually a select but updating works just like text
-    attachUpdateBrandCallbackToTextField('server_url', 'server_url', token);
+    attachUpdateCloudValue('server_url', token);
     attachUpdateBrandCallbackToTextField('server_authorization', 'server_authorization', token);
     attachUpdateBrandCallbackToTextField('server_sitename', 'server_sitename', token);
     attachUpdateBrandCallbackToTextField('server_siteadmin_name', 'server_siteadmin_name', token);

@@ -18,6 +18,7 @@
 import {API_URL, del, get} from "../api/api";
 import {alphaSortWithKey, appendOptionsToSelect} from '../utils/utils';
 import openSnackBar from "../components/snackbar";
+import {noteBoxId, noteSavedCloudValue} from "./cloudpackage";
 
 /**
  * Helper to activate a switch at the beginning
@@ -144,6 +145,20 @@ function subscriptionsRenderer(element, array) {
  * @param element the input element to set
  * @param value the value from the server
  */
+/**
+ * stringParserRenderer for the Cloud Server URL: also records the saved value,
+ * which (with the Box ID) decides whether the cloud items are shown.
+ */
+function boxIdRenderer(element, prop) {
+    textRenderer(element, prop);
+    noteBoxId(prop);
+}
+
+function cloudValueRenderer(element, prop) {
+    stringParserRenderer(element, prop);
+    noteSavedCloudValue(element, element.value);
+}
+
 function stringParserRenderer(element, prop) {
     try {
         const parsedProp = JSON.parse(prop)
@@ -278,10 +293,10 @@ export default function (token) {
     getProperty('channel-input', 'apchannel', token);
     getProperty('clientwificonnection', 'clientwificonnection', token, textRenderer);
     getProperty('connectedclients', 'connectedclients', token, textRenderer);
-    getProperty('boxid', 'boxid', token, textRenderer);
+    getProperty('boxid', 'boxid', token, boxIdRenderer);
     getProperty('logsources', 'logsources', token, logSourcesRenderer);
 
-    getProperty('server_url-input', 'brand/server_url', token, stringParserRenderer);
+    getProperty('server_url-input', 'brand/server_url', token, cloudValueRenderer);
     getProperty('server_sitename-input', 'brand/server_sitename', token, stringParserRenderer);
     getProperty('server_authorization-input', 'brand/server_authorization', token, stringParserRenderer);
     getProperty('server_siteadmin_name-input', 'brand/server_siteadmin_name', token, stringParserRenderer);
