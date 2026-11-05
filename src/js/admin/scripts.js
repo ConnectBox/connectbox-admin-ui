@@ -27,7 +27,8 @@ const messages = {
     reset:'System reset',
     sync:'Sync With Server',
     deleteweblog:'Delete Stats',
-    clientwifiwipe:'Wipe client Wi-Fi'
+    clientwifiwipe:'Wipe client Wi-Fi',
+    internetusagereset:'Reset data counter'
 }
 
 /**
@@ -85,31 +86,76 @@ function attachClientWifiWipe(token) {
 }
 
 /**
+ * Bytes as text, in decimal units (1 MB = 1,000,000 bytes).
+ * @param {number} b - bytes
+ */
+function formatBytes(b) {
+    b = Number(b) || 0;
+    if (b >= 1e9) return (b / 1e9).toFixed(2) + ' GB';
+    if (b >= 1e6) return (b / 1e6).toFixed(1) + ' MB';
+    if (b >= 1e3) return (b / 1e3).toFixed(1) + ' kB';
+    return b + ' bytes';
+}
+
+/**
+ * Show the internet sharing data total (GET internetusage: {up, down, since})
+ * and connect its "Reset data counter" button (GET do/internetusagereset).
+ * @param token the token to authenticate the requests
+ */
+function attachInternetUsage(token) {
+    const text = document.getElementById('internet_usage-text');
+    const button = document.getElementById('internetusagereset-button');
+    if (!text) return;
+    const show = () => get(`${API_URL}internetusage`, token, (result) => {
+        const u = (result && result[0]) || {};
+        const up = Number(u.up) || 0, down = Number(u.down) || 0;
+        text.textContent = `Data shared: ${formatBytes(up + down)} (down ${formatBytes(down)}, up ${formatBytes(up)})` +
+            (u.since ? ` since ${u.since}` : '');
+    }, () => {});
+    show();
+    if (button) button.addEventListener('click', () => {
+        if (!window.confirm('Set the shared data counter back to 0?')) return;
+        get(`${API_URL}do/internetusagereset`, token, () => { show(); openSnackBar('Data counter reset', 'success'); },
+            (code) => errorCallback('internetusagereset', code));
+    });
+}
+
+/**
  * Attach a click handler to the advanced-options toggle button.
  *
- * When clicked, reveals all elements with the CSS class 'isAdvanced' by
- * removing the 'hidden' class.  This is a one-way toggle — advanced options
- * are shown once clicked and cannot be re-hidden without a page reload.
- * Controls that are too dangerous or confusing for typical use are marked
- * 'isAdvanced' in the HTML so they stay hidden until explicitly requested.
+ * Pressing it shows all elements with the CSS class 'isAdvanced' (removes
+ * 'hidden'); pressing it again hides them.  The choice is remembered in this
+ * browser (localStorage), so Advanced stays on after the next login until it
+ * is pressed again (2026-11-05: every login reloads the page, which used to
+ * hide them again).  Controls that are too dangerous or confusing for typical
+ * use are marked 'isAdvanced' in the HTML.
  *
  * @param {string} id - The id prefix of the button element (e.g. 'advanced'
  *   maps to button id 'advanced-button').
  * @param {string} token - The auth token (unused here; kept for API symmetry).
  */
+const ADVANCED_KEY = 'connectbox-admin-advanced';
+
+function advancedRemembered() {
+    try { return localStorage.getItem(ADVANCED_KEY) === '1'; } catch (e) { return false; }
+}
+
+function showAdvanced(on) {
+    for (const element of document.getElementsByClassName('isAdvanced')) {
+        if (on) element.classList.remove('hidden');
+        else element.classList.add('hidden');
+    }
+}
+
 function attachAdvanced(id,token) {
     const button = document.getElementById(`${id}-button`)
 	console.log(`attachSystemScript: ${id}-button`);
+    if (advancedRemembered()) showAdvanced(true);
     button.addEventListener('click', () => {
-   		openSnackBar('Enabling Advanced Options','success');
-		console.log("Enabling Advanced Options -- show hidden regions");
-		// Reveal all elements marked as advanced options.
-		var elements = document.getElementsByClassName('isAdvanced')
-		for (var element of elements) {
-			console.log('Showing Advanced Option: ' + element.id)
-			var item = document.getElementById(element.id)
-			item.classList.remove('hidden');
-		}
+        const on = !advancedRemembered();
+        try { localStorage.setItem(ADVANCED_KEY, on ? '1' : '0'); } catch (e) {}
+        showAdvanced(on);
+   		openSnackBar(on ? 'Enabling Advanced Options' : 'Advanced options hidden', 'success');
     })
 }
 
@@ -126,5 +172,6 @@ export default function attachSystemScripts(token){
     attachSystemScript('sync', token);
     attachAdvanced('advanced', token);
     attachClientWifiWipe(token);
+    attachInternetUsage(token);
     //attachSystemScript('reset', token);
 }

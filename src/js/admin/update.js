@@ -826,6 +826,7 @@ export default function attachUpdateCallbacks(token) {
 	attachUpdateCallbackToSwitch('disable_chat','disable_chat', token);
 	attachUpdateCallbackToSwitch('disable_stats','disable_stats', token);
     attachUpdateBrandCallbackToSwitch('usb0nomount', 'usb0nomount', token);
+    attachUpdateBrandCallbackToSwitch('internet_sharing', 'internet_sharing', token);
 
 	// Added 20220104 to use keys for LCD pages rather than array
 	attachUpdateBrandCallbackToSwitch('lcd_pages_main','lcd_pages_main', token);

@@ -316,6 +316,7 @@ export default function (token) {
 	getProperty('subscribe-input','subscriptions', token, subscriptionsRenderer);
 
     getProperty('usb0nomount', 'brand/usb0nomount', token, switchRenderer);
+    getProperty('internet_sharing', 'brand/internet_sharing', token, switchRenderer);
 
 	// Don't get clientwifiscan on load because it takes too long.
 	//getProperty('client-wifiscan-input','clientwifiscan', token, wifiScanRenderer);  

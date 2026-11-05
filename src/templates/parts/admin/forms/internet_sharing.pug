@@ -1,0 +1,19 @@
+extends ../../../layout/form
+include ../../../mixins/switch
+
+block variables
+    - var id = 'internet_sharing'
+
+block icon
+    include ../../../icons/globe
+
+block title
+    | Share Internet With Wi-Fi Users
+
+block form
+    p.text-caption Lets phones on the ConnectBox Wi-Fi use this box's internet connection (Ethernet or the client Wi-Fi above). Warning: if that connection is metered (mobile data, pay per MB), every phone's traffic, including app and system updates, counts against it. No filtering. Turning this on or off disconnects the phones once (they rejoin). Phones will not open the ConnectBox page by themselves while this is on: use http://connectbox
+    p.mb-1#internet_usage-text Data shared: -
+    div.mb-3
+        button.bg-transparent.border-0.text-primary.p-0#internetusagereset-button(type="button") Reset data counter
+    div.position-relative
+        +switch('internet_sharing', 'Share Internet')
