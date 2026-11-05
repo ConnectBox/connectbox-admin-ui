@@ -26,7 +26,8 @@ const messages = {
     reboot:'System reboot',
     reset:'System reset',
     sync:'Sync With Server',
-    deleteweblog:'Delete Stats'
+    deleteweblog:'Delete Stats',
+    clientwifiwipe:'Wipe client Wi-Fi'
 }
 
 /**
@@ -58,6 +59,29 @@ function attachSystemScript(id, token) {
    		openSnackBar('Processing...','success');
         get(`${API_URL}do/${id}`,token,()=>successCallback(id), (code)=>errorCallback(id, code))
     })
+}
+
+/**
+ * Connect the client Wi-Fi "wipe" button: asks first, then GET /admin/api/do/clientwifiwipe.
+ * The box sets the client SSID and password back to the defaults, forgets the
+ * remembered networks and restarts the client Wi-Fi.  The form fields are
+ * cleared to the defaults so they match.
+ * @param token the token to authenticate the request
+ */
+function attachClientWifiWipe(token) {
+    const button = document.getElementById('clientwifiwipe-button');
+    if (!button) return;
+    button.addEventListener('click', () => {
+        if (!window.confirm('Wipe the client Wi-Fi SSID and password, and forget all remembered networks? The box will disconnect from the internet Wi-Fi.')) return;
+        openSnackBar('Processing...','success');
+        get(`${API_URL}do/clientwifiwipe`, token, () => {
+            const ssid = document.getElementById('client-ssid-input');
+            const pass = document.getElementById('client-wifipassword-input');
+            if (ssid) ssid.value = 'Default';
+            if (pass) pass.value = 'Default1';
+            openPopup('Success', 'Client Wi-Fi wiped');
+        }, (code) => errorCallback('clientwifiwipe', code));
+    });
 }
 
 /**
@@ -101,5 +125,6 @@ export default function attachSystemScripts(token){
     attachSystemScript('reboot', token);
     attachSystemScript('sync', token);
     attachAdvanced('advanced', token);
+    attachClientWifiWipe(token);
     //attachSystemScript('reset', token);
 }
