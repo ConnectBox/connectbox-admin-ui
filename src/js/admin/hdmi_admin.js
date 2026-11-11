@@ -12,7 +12,9 @@
  *  - build the playlist looped on the HDMI screen from the box's video,
  *    audio and picture files (add, move up/down, remove, seconds per
  *    picture, Save);
- *  - play one file now, or stop it (back to the playlist);
+ *  - play one file now (once, then the playlist goes on);
+ *  - stop the screen: the box name stays up until the playlist is started
+ *    or saved again;
  *  - save the playlist and start it from the top (Play playlist);
  *  - allow visitors to use "Play on HDMI" on the media pages
  *    (brand.j2 hdmi_visitor_play).
@@ -133,7 +135,8 @@
       }
       var what = st.mode === 'single' ? 'playing a chosen file' :
         st.mode === 'playlist' ? 'looping the playlist' :
-        st.mode === 'splash' ? 'showing the box name and Wi-Fi name' : 'no screen connected';
+        st.mode === 'splash' ? 'showing the box name and Wi-Fi name' :
+        st.mode === 'stopped' ? 'stopped (showing the box name and Wi-Fi name)' : 'no screen connected';
       s.textContent = (st.monitor ? 'Screen connected: ' : 'No screen connected. ') + (st.monitor ? what : '');
       var v = el('hdmi_visitor_play-input');
       if (v) v.checked = !!st.visitor_play;
@@ -202,14 +205,15 @@
       playList.textContent = 'Play playlist';
       el('hdmi-stop').parentNode.insertBefore(playList, el('hdmi-stop'));
     }
-    // Save the list as shown, then start it from its first item.  Saving alone
-    // does not interrupt a file chosen with Play now; "stop" does, and sends
-    // the player back to the playlist (or the splash when the list is empty).
+    // Start the list as shown from its first item: "stop" ends whatever is on
+    // the screen (saving alone does not interrupt a file chosen with Play
+    // now), then saving the playlist makes the player start it from the top
+    // (or show the box name when the list is empty).
     playList.onclick = function () {
-      savePlaylist(function () {
-        request('GET', 'hdmi/stop', undefined, function (code) {
-          if (code !== 200) say('Could not start the playlist', true);
-          else say(playlist.length ? 'Playing the playlist' : 'The playlist is empty');
+      request('GET', 'hdmi/stop', undefined, function (code) {
+        if (code !== 200) { say('Could not start the playlist', true); return; }
+        savePlaylist(function () {
+          say(playlist.length ? 'Playing the playlist' : 'The playlist is empty');
           showStatus();
         });
       });
@@ -224,7 +228,9 @@
     };
     el('hdmi-stop').onclick = function () {
       request('GET', 'hdmi/stop', undefined, function (code) {
-        say(code === 200 ? 'Back to the playlist' : 'Stop failed', code !== 200);
+        // Stops a chosen file and the playlist; the box name stays on the
+        // screen until Play playlist, Save playlist or Play now.
+        say(code === 200 ? 'Stopped' : 'Stop failed', code !== 200);
         showStatus();
       });
     };
