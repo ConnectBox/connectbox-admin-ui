@@ -21,6 +21,8 @@ import load from "./admin/load";
 import attachUpdateCallbacks from "./admin/update";
 import initReports from "./admin/reports";
 import attachSystemScripts from "./admin/scripts";
+// HDMI Screen section (Raspberry Pi, 2026-11-11): self-starting, see the file
+import "./admin/hdmi_admin";
 
 // Auth token — currently unused (session-based auth via cookie replaces the
 // token approach, but the token plumbing is kept in place for future use).
