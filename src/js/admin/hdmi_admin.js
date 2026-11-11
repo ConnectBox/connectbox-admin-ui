@@ -13,6 +13,7 @@
  *    audio and picture files (add, move up/down, remove, seconds per
  *    picture, Save);
  *  - play one file now, or stop it (back to the playlist);
+ *  - save the playlist and start it from the top (Play playlist);
  *  - allow visitors to use "Play on HDMI" on the media pages
  *    (brand.j2 hdmi_visitor_play).
  * API: connectbox-manage src/hdmi.js (/admin/api/hdmi/...).  On a box without
@@ -167,6 +168,19 @@
     });
   }
 
+  /**
+   * Save the playlist as shown on the page (order and seconds per picture) to
+   * the box; the player re-reads it.  saved() runs after a successful save; a
+   * failure is reported in the message line and saved() is not called.
+   */
+  function savePlaylist(saved) {
+    var secs = parseInt(el('hdmi-image-seconds').value, 10) || 10;
+    request('PUT', 'hdmi/playlist', {items: playlist, image_seconds: secs}, function (code, r) {
+      if (code === 200) saved();
+      else say('Save failed: ' + (r && r.error || code), true);
+    });
+  }
+
   /** Wire the buttons and the visitor switch. */
   function attach() {
     if (!el('hdmi')) return;
@@ -175,10 +189,29 @@
       if (v) { playlist.push(v); drawPlaylist(); say('Not saved yet'); }
     };
     el('hdmi-save').onclick = function () {
-      var secs = parseInt(el('hdmi-image-seconds').value, 10) || 10;
-      request('PUT', 'hdmi/playlist', {items: playlist, image_seconds: secs}, function (code, r) {
-        if (code === 200) { say('Playlist saved'); showStatus(); }
-        else say('Save failed: ' + (r && r.error || code), true);
+      savePlaylist(function () { say('Playlist saved'); showStatus(); });
+    };
+    // "Play playlist": a page patched before this button existed keeps its old
+    // markup (only this script is refreshed), so the button is added here if missing.
+    var playList = el('hdmi-play-list');
+    if (!playList) {
+      playList = document.createElement('button');
+      playList.type = 'button';
+      playList.id = 'hdmi-play-list';
+      playList.className = 'bg-transparent border-0 text-primary p-0 me-3';
+      playList.textContent = 'Play playlist';
+      el('hdmi-stop').parentNode.insertBefore(playList, el('hdmi-stop'));
+    }
+    // Save the list as shown, then start it from its first item.  Saving alone
+    // does not interrupt a file chosen with Play now; "stop" does, and sends
+    // the player back to the playlist (or the splash when the list is empty).
+    playList.onclick = function () {
+      savePlaylist(function () {
+        request('GET', 'hdmi/stop', undefined, function (code) {
+          if (code !== 200) say('Could not start the playlist', true);
+          else say(playlist.length ? 'Playing the playlist' : 'The playlist is empty');
+          showStatus();
+        });
       });
     };
     el('hdmi-play').onclick = function () {
