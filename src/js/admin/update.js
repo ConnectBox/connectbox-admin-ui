@@ -856,7 +856,7 @@ export default function attachUpdateCallbacks(token) {
     ], 'client_wifi', token, () => successCallback('client_wifi'));
 
     // Text fields
-    attachUpdateCallbackToTextField('wipe', 'wipe', token, () => openPopup('Success', 'The SD card is being wiped'));
+    attachUpdateCallbackToTextField('wipe', 'wipe', token, () => openPopup('Success', 'The media on this box and all USB keys are being wiped. The Wi-Fi will go off.'));
     attachUpdateCallbackToTextField('hostname', 'hostname', token);
     attachUpdateCallbackToTextField('password', 'password', token);
     attachUpdateCallbackToTextField('subscribe', 'subscribe', token);
