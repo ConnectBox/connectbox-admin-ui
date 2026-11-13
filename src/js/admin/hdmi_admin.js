@@ -160,8 +160,34 @@
         st.mode === 'splash' ? 'showing the box name and Wi-Fi name' :
         st.mode === 'stopped' ? 'stopped (showing the box name and Wi-Fi name)' : 'no screen connected';
       s.textContent = (st.monitor ? 'Screen connected: ' : 'No screen connected. ') + (st.monitor ? what : '');
-      var v = el('hdmi_visitor_play-input');
-      if (v) v.checked = !!st.visitor_play;
+      setVisitorSwitch(!!st.visitor_play);
+    });
+  }
+
+  /**
+   * Show the visitor "Play on HDMI" setting.  Since 2026-11-13 it is the
+   * page's toggle switch (like the other settings): the hidden checkbox
+   * hdmi_visitor_play-input plus the visible hdmi_visitor_play-switch, whose
+   * look is its form-checkbox-div--checked / --unchecked class.  A page
+   * patched before then has a plain checkbox only; that still works.
+   */
+  function setVisitorSwitch(on) {
+    var input = el('hdmi_visitor_play-input');
+    if (input) input.checked = on;
+    var sw = el('hdmi_visitor_play-switch');
+    if (!sw) return;
+    var names = sw.className.split(' ').filter(function (c) {
+      return c !== 'form-checkbox-div--checked' && c !== 'form-checkbox-div--unchecked';
+    });
+    names.push(on ? 'form-checkbox-div--checked' : 'form-checkbox-div--unchecked');
+    sw.className = names.join(' ');
+  }
+
+  /** Save the visitor setting as the checkbox now shows it. */
+  function saveVisitorPlay() {
+    var on = el('hdmi_visitor_play-input').checked ? 1 : 0;
+    request('PUT', 'brand', {value: 'hdmi_visitor_play=' + on}, function (code) {
+      say(code === 200 ? (on ? 'Visitors can use Play on HDMI' : 'Only the admin can use Play on HDMI') : 'Save failed', code !== 200);
     });
   }
 
@@ -256,12 +282,16 @@
         showStatus();
       });
     };
-    el('hdmi_visitor_play-input').onchange = function () {
-      var on = this.checked ? 1 : 0;
-      request('PUT', 'brand', {value: 'hdmi_visitor_play=' + on}, function (code) {
-        say(code === 200 ? (on ? 'Visitors can use Play on HDMI' : 'Only the admin can use Play on HDMI') : 'Save failed', code !== 200);
-      });
-    };
+    // Visitor setting: the toggle switch's own click handler (components/
+    //  custom-switch.js) flips the hidden checkbox; it may run after this one,
+    //  so the value is read once all click handlers are done.  An older patched
+    //  page with a plain checkbox saves on its change event instead.
+    var visitorSwitch = el('hdmi_visitor_play-switch');
+    if (visitorSwitch) {
+      visitorSwitch.addEventListener('click', function () { setTimeout(saveVisitorPlay, 0); });
+    } else {
+      el('hdmi_visitor_play-input').onchange = saveVisitorPlay;
+    }
   }
 
   function start() { attach(); load(); }
