@@ -1,0 +1,18 @@
+extends ../../../layout/form
+
+block variables
+    - var id = 'boxcontent_to_usb'
+
+block icon
+    include ../../../icons/usb
+
+block title
+    | Copy box content to a USB key
+
+block form
+    p.text-caption Copies the box's own content onto a USB key, replacing the key's content folder. Put the key in when asked (or leave it in). A FAT32 key cannot take files of 4 GB or more.
+    div.d-flex.align-items-center
+        span.flex-grow-1 Start
+        button.bg-transparent.border-0.text-primary.p-0(id="boxcontent_to_usb-button", type="button", aria-label="Copy box content to a USB key")
+            include ../../../icons/play
+    p.mt-2.mb-0(id="boxcontent_to_usb-status")

@@ -1,0 +1,11 @@
+//- Box Content (Advanced, 2026-11-13): copy the box's own content to / from a
+//-  USB key, like the front panel's admin menu.  Script: src/js/admin/boxcontent_admin.js
+extends ../../../layout/section
+
+block title
+    include ../../../icons/usb
+    | Box Content
+
+block content
+    include ../forms/boxcontent_from_usb
+    include ../forms/boxcontent_to_usb

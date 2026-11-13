@@ -1,0 +1,18 @@
+extends ../../../layout/form
+
+block variables
+    - var id = 'boxcontent_from_usb'
+
+block icon
+    include ../../../icons/usb
+
+block title
+    | Copy USB key to the box
+
+block form
+    p.text-caption Replaces the box's own content with the content folder of a USB key, then rebuilds the menus. Put the key in when asked (or leave it in). The box's current content is deleted first, once there is room for the new content.
+    div.d-flex.align-items-center
+        span.flex-grow-1 Start
+        button.bg-transparent.border-0.text-primary.p-0(id="boxcontent_from_usb-button", type="button", aria-label="Copy USB key to the box")
+            include ../../../icons/play
+    p.mt-2.mb-0(id="boxcontent_from_usb-status")
