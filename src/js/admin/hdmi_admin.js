@@ -59,17 +59,21 @@
 
   /**
    * Add a playlist entry's label to the list item li: "name (kind)" and then
-   * "Language: xxx" with the language underlined, so the language stands out
-   * (Kirk, 2026-11-13: in "name (language, kind)" it got lost).  A file no
+   * "Language: xxx" in bold with the language also underlined, so the
+   * language stands out (Kirk, 2026-11-13: in "name (language, kind)" it got
+   * lost).  A file no
    * longer on the box shows its file name and "(not on the box now)".
    */
   function addLabel(li, path) {
     for (var i = 0; i < media.length; i++) {
       if (media[i].path === path) {
-        li.appendChild(document.createTextNode(media[i].name + ' (' + media[i].kind + ') \u00b7 Language: '));
+        li.appendChild(document.createTextNode(media[i].name + ' (' + media[i].kind + ') \u00b7 '));
+        var b = document.createElement('b');
+        b.appendChild(document.createTextNode('Language: '));
         var u = document.createElement('u');
         u.textContent = media[i].lang;
-        li.appendChild(u);
+        b.appendChild(u);
+        li.appendChild(b);
         li.appendChild(document.createTextNode(' '));
         return;
       }
@@ -112,9 +116,9 @@
 
   /**
    * Fill the file chooser, grouped by language.  Each group's heading reads
-   * "Language: xxx" (2026-11-13).  A <select> cannot underline its group
-   * headings (browsers draw them themselves), so only the playlist entries
-   * have the underline.
+   * "Language: xxx" in bold (2026-11-13).  A <select> cannot underline its
+   * group headings, and phones draw their own picker (bold may not show
+   * there), so the playlist entries carry the underline.
    */
   function drawMedia() {
     var sel = el('hdmi-media');
@@ -126,6 +130,7 @@
       if (!groups[m.lang]) {
         groups[m.lang] = document.createElement('optgroup');
         groups[m.lang].label = 'Language: ' + m.lang;
+        groups[m.lang].style.fontWeight = 'bold';
         sel.appendChild(groups[m.lang]);
       }
       var o = document.createElement('option');
