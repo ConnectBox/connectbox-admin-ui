@@ -57,12 +57,24 @@
   var media = [];        // playable files on the box: {path, name, lang, kind}
   var playlist = [];     // web paths in order
 
-  /** Label for a file: name (language, kind). */
-  function label(path) {
+  /**
+   * Add a playlist entry's label to the list item li: "name (kind)" and then
+   * "Language: xxx" with the language underlined, so the language stands out
+   * (Kirk, 2026-11-13: in "name (language, kind)" it got lost).  A file no
+   * longer on the box shows its file name and "(not on the box now)".
+   */
+  function addLabel(li, path) {
     for (var i = 0; i < media.length; i++) {
-      if (media[i].path === path) return media[i].name + ' (' + media[i].lang + ', ' + media[i].kind + ')';
+      if (media[i].path === path) {
+        li.appendChild(document.createTextNode(media[i].name + ' (' + media[i].kind + ') \u00b7 Language: '));
+        var u = document.createElement('u');
+        u.textContent = media[i].lang;
+        li.appendChild(u);
+        li.appendChild(document.createTextNode(' '));
+        return;
+      }
     }
-    return path.split('/').pop() + ' (not on the box now)';
+    li.appendChild(document.createTextNode(path.split('/').pop() + ' (not on the box now) '));
   }
 
   /** Redraw the playlist with Up / Down / Remove buttons. */
@@ -80,7 +92,7 @@
       (function (i) {
         var li = document.createElement('li');
         li.className = 'mb-1';
-        li.appendChild(document.createTextNode(label(playlist[i]) + ' '));
+        addLabel(li, playlist[i]);
         [['↑', 'Move up', function () { if (i > 0) { var t = playlist[i - 1]; playlist[i - 1] = playlist[i]; playlist[i] = t; } }],
          ['↓', 'Move down', function () { if (i < playlist.length - 1) { var t = playlist[i + 1]; playlist[i + 1] = playlist[i]; playlist[i] = t; } }],
          ['✕', 'Remove', function () { playlist.splice(i, 1); }]].forEach(function (b) {
@@ -98,7 +110,12 @@
     }
   }
 
-  /** Fill the file chooser, grouped by language. */
+  /**
+   * Fill the file chooser, grouped by language.  Each group's heading reads
+   * "Language: xxx" (2026-11-13).  A <select> cannot underline its group
+   * headings (browsers draw them themselves), so only the playlist entries
+   * have the underline.
+   */
   function drawMedia() {
     var sel = el('hdmi-media');
     if (!sel) return;
@@ -108,7 +125,7 @@
       var m = media[i];
       if (!groups[m.lang]) {
         groups[m.lang] = document.createElement('optgroup');
-        groups[m.lang].label = m.lang;
+        groups[m.lang].label = 'Language: ' + m.lang;
         sel.appendChild(groups[m.lang]);
       }
       var o = document.createElement('option');
