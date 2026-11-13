@@ -334,8 +334,9 @@ export default function (token) {
 	getProperty('lcd_pages_multi_bat','brand/lcd_pages_multi_bat', token, switchRenderer);
 	getProperty('lcd_pages_memory','brand/lcd_pages_memory', token, switchRenderer);
 	getProperty('lcd_pages_stats','brand/lcd_pages_stats', token, switchRenderer);
-	// IP addresses and Internet data pages (2026-11-13); connectbox-manage
-	//  reports 1 for these when brand.j2 does not have them yet
+	// IP addresses and Internet data pages (2026-11-13); when brand.j2 lacks
+	//  them, connectbox-manage reports 1 for the IP page and, for the Internet
+	//  page, whether internet sharing is on
 	getProperty('lcd_pages_network','brand/lcd_pages_network', token, switchRenderer);
 	getProperty('lcd_pages_internet','brand/lcd_pages_internet', token, switchRenderer);
 	getProperty('lcd_pages_admin','brand/lcd_pages_admin', token, switchRenderer);

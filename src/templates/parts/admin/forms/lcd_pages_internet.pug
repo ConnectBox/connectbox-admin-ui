@@ -1,7 +1,7 @@
 extends ../../../layout/form
 include ../../../mixins/switch
 
-//- Front-panel Internet page (data sent and received for internet sharing); brand.j2 lcd_pages_internet, on by default (2026-11-13). Even when on, the page appears only while internet sharing is on or some data has been counted.
+//- Front-panel Internet page (data sent and received for internet sharing); brand.j2 lcd_pages_internet (2026-11-13). Off by default; connectbox-manage turns it on when internet sharing is turned on, and off again when sharing is turned off unless the admin turned it on by hand.
 block variables
     - var id = 'lcd_pages_internet'
 

@@ -206,6 +206,50 @@ function attachUpdateBrandCallbackToTextField(name, id, token) {
  * @param id the id of the form
  * @param token the token to authenticate the request
  */
+/**
+ * Internet sharing switch (brand.j2 internet_sharing).  Saves it like any
+ * brand switch, then reads lcd_pages_internet back and shows it: connectbox-
+ * manage turns the front panel's Internet Data page switch on when sharing
+ * is turned on, and off again when sharing is turned off unless the admin set
+ * it by hand (Kirk, 2026-11-13).  Without the read-back the page would show
+ * the old state until it is reloaded.
+ *
+ * @param token the authorization token
+ */
+function attachInternetSharingSwitch(token) {
+    const element = document.getElementById('internet_sharing-switch');
+    if (!element) return;
+    element.addEventListener('click', (e) => {
+        e.preventDefault();
+        const value = document.getElementById('internet_sharing-input').checked ? 1 : 0;
+        setProperty("brand", {value: `internet_sharing=${value}`}, token, (name) => {
+            successCallback(name);
+            get(`${API_URL}brand/lcd_pages_internet`, token, (prop) => {
+                if (prop[0] && prop[0][0]) prop = prop[0];
+                const state = prop[0];
+                showSwitchState('lcd_pages_internet', state == '"1"' || state == '1' || state == 1);
+            }, () => {});
+        });
+    });
+}
+
+/**
+ * Show a switch as on or off without saving anything (input and look).
+ *
+ * @param id the switch's id (the element ids are <id>-switch and <id>-input)
+ * @param on true for on
+ */
+function showSwitchState(id, on) {
+    const sw = document.getElementById(`${id}-switch`);
+    const input = document.getElementById(`${id}-input`);
+    if (!sw || !input) return;
+    const classNames = sw.className.split(' ')
+        .filter(c => c !== 'form-checkbox-div--checked' && c !== 'form-checkbox-div--unchecked');
+    classNames.push(on ? 'form-checkbox-div--checked' : 'form-checkbox-div--unchecked');
+    sw.className = classNames.join(' ');
+    input.checked = on;
+}
+
 function attachUpdateBrandCallbackToSwitch(name, id, token) {
 	console.log(`attachUpdateBrandCallbackToSwitch: ${name}: ${id}`);
     const element = document.getElementById(`${id}-switch`)
@@ -826,7 +870,7 @@ export default function attachUpdateCallbacks(token) {
 	attachUpdateCallbackToSwitch('disable_chat','disable_chat', token);
 	attachUpdateCallbackToSwitch('disable_stats','disable_stats', token);
     attachUpdateBrandCallbackToSwitch('usb0nomount', 'usb0nomount', token);
-    attachUpdateBrandCallbackToSwitch('internet_sharing', 'internet_sharing', token);
+    attachInternetSharingSwitch(token);
 
 	// Added 20220104 to use keys for LCD pages rather than array
 	attachUpdateBrandCallbackToSwitch('lcd_pages_main','lcd_pages_main', token);
