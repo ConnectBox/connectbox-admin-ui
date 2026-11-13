@@ -835,6 +835,9 @@ export default function attachUpdateCallbacks(token) {
 	attachUpdateBrandCallbackToSwitch('lcd_pages_multi_bat','lcd_pages_multi_bat', token);
 	attachUpdateBrandCallbackToSwitch('lcd_pages_memory','lcd_pages_memory', token);
 	attachUpdateBrandCallbackToSwitch('lcd_pages_stats','lcd_pages_stats', token);
+	// IP addresses and Internet data pages (2026-11-13)
+	attachUpdateBrandCallbackToSwitch('lcd_pages_network','lcd_pages_network', token);
+	attachUpdateBrandCallbackToSwitch('lcd_pages_internet','lcd_pages_internet', token);
 	attachUpdateBrandCallbackToSwitch('lcd_pages_admin','lcd_pages_admin', token);
 
     // Screen_Enable group of switches

@@ -1,0 +1,16 @@
+extends ../../../layout/form
+include ../../../mixins/switch
+
+//- Front-panel Internet page (data sent and received for internet sharing); brand.j2 lcd_pages_internet, on by default (2026-11-13). Even when on, the page appears only while internet sharing is on or some data has been counted.
+block variables
+    - var id = 'lcd_pages_internet'
+
+block icon
+    include ../../../icons/screens
+
+block title
+    | Show LCD Internet Data Page
+
+block form
+    div.position-relative
+        +switch('lcd_pages_internet', 'Show LCD Internet Data Page')

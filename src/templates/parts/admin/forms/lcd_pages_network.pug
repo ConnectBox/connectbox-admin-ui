@@ -1,0 +1,16 @@
+extends ../../../layout/form
+include ../../../mixins/switch
+
+//- Front-panel IP addresses page (AP, client Wi-Fi, Ethernet); brand.j2 lcd_pages_network, on by default (2026-11-13).
+block variables
+    - var id = 'lcd_pages_network'
+
+block icon
+    include ../../../icons/screens
+
+block title
+    | Show LCD IP Addresses Page
+
+block form
+    div.position-relative
+        +switch('lcd_pages_network', 'Show LCD IP Addresses Page')
